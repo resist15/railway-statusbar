@@ -34,5 +34,4 @@ tbd
 
 
 ## Planned features
-- Persistent storage of total km-counter
 - Optional WPM counter
