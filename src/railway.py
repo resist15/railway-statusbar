@@ -7,12 +7,10 @@ import os
 import sys
 import time
 import random
-import math
-from datetime import datetime, timedelta
 from pynput import keyboard
 import threading
 from emoji import emojize
-
+import plyvel
 n = len(sys.argv)
 UNITS = "km"
 for i in range(1, n):
@@ -36,13 +34,14 @@ velocity = 0.0
 CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache/railway_status")
 if not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
-CACHE_FILE = os.path.join(CACHE_DIR, "KM.txt")
-with open(CACHE_FILE, 'r') as CACHE_OPP:
-    file_content = CACHE_OPP.read()
-    if file_content != "":
-        TOTAL_DISTANCE = float(file_content)
-    else:
-        TOTAL_DISTANCE = 0.0
+DB_PATH = os.path.join(os.path.expanduser("~"), ".cache/railway_status")
+db = plyvel.DB(DB_PATH, create_if_missing=True)
+
+km_bytes = db.get(b'total_km')
+if km_bytes:
+    TOTAL_DISTANCE = float(km_bytes.decode('utf-8'))
+else:
+    TOTAL_DISTANCE = 0.0
 
 RAIL_CHAR = '..'
 PLAYER_CHAR = emojize(":railway_car:")
@@ -192,10 +191,7 @@ def run():
 
             counter -= 1
             TOTAL_DISTANCE += 0.01 # TODO: adjust
-            cache = open(CACHE_FILE, 'w+')
-            TOTAL_DISTANCE += 0.01 # TODO: adjust
-            cache.write(str(TOTAL_DISTANCE)[:5])
-            cache.close()
+            db.put(b'total_km', str(TOTAL_DISTANCE).encode('utf-8'))
 
 
         # debug(f"vel: {velocity:.4f}, ax: {ax}")
