@@ -23,7 +23,7 @@ for i in range(1, n):
             UNITS = "mi"
 
 
-WIDTH = 16
+WIDTH = 10
 PLAYER_POS = 3
 
 FPS = 30
